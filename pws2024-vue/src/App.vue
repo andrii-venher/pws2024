@@ -1,54 +1,66 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+<script>
+export default {
+  data() {
+    return {
+      inputData: {
+        firstName: '',
+        yearOfBirth: 2000
+      },
+      isValid: false,
+      rules: {
+        startsWithLetter: (value) => {
+          if(/^[A-Z]/.test(value)) return true
+          return 'It should start with a capital letter'
+        },
+        validYear: (value) => {
+          let numValue = parseInt(value)
+          if(numValue >= 1900 && numValue <= 2024) return true
+          return 'Out of range 1900-2024'
+        }
+      },
+      message: false
+    }
+  },
+  methods: {
+    sendClicked() {
+      fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify(this.inputData)
+      })
+      .then(res => {
+        res.json().then(body => {
+          if(res.status < 400) {
+            this.message = 'Data accepted'
+          } else {
+            this.message = 'Backend refused processing the data'
+          }
+        })
+      })
+    }
+  },
+  mounted() {
+    console.log('mounted')
+    fetch('/api', {
+      method: 'GET'
+    }).then(res => res.json().then(body => {
+      this.inputData = body
+    }))
+  }
+}
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="PWS 2024" />
-    </div>
-
-  </header>
-
-  <main>
-    <TheWelcome />
-
-  </main>
-
   <div>
-    <v-btn variant="elevated" color="primary">Vuetify</v-btn>
+    <v-form v-model="isValid">
+      <v-text-field v-model="inputData.firstName" label="First name" variant="outlined" :rules="[ rules.startsWithLetter ]"></v-text-field>
+      <v-text-field type=number v-model="inputData.yearOfBirth" label="Year of birth" variant="outlined" :rules="[ rules.validYear ]"></v-text-field>
+      <v-btn variant="elevated" color="primary" @click="sendClicked" :disabled="!isValid">Send</v-btn>
+    </v-form>
   </div>
 
+  <v-snackbar v-model="message">{{ message }}</v-snackbar>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>
