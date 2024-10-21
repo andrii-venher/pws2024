@@ -10,11 +10,18 @@ import TheWelcome from './components/TheWelcome.vue'
     <div class="wrapper">
       <HelloWorld msg="PWS 2024" />
     </div>
+
   </header>
 
   <main>
     <TheWelcome />
+
   </main>
+
+  <div>
+    <v-btn variant="elevated" color="primary">Vuetify</v-btn>
+  </div>
+
 </template>
 
 <style scoped>
