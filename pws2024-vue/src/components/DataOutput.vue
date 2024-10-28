@@ -5,12 +5,17 @@ export default {
       dataGathered: []
     }
   },
-  mounted() {
-    fetch('/api', {
+  methods: {
+    refresh() {
+      fetch('/api', {
       method: 'GET'
-    }).then(res => res.json().then(body => {
-      this.dataGathered = body
-    }))
+      }).then(res => res.json().then(body => {
+        this.dataGathered = body
+      }))
+    }
+  },
+  mounted() {
+    this.refresh()
   }
 }
 </script>

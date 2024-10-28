@@ -22,6 +22,7 @@ export default {
       message: ''
     }
   },
+  emits: [ 'refreshOutput' ],
   methods: {
     sendClicked() {
       fetch('/api', {
@@ -33,6 +34,7 @@ export default {
         res.json().then(body => {
           if(res.status < 400) {
             this.message = 'Data accepted'
+            this.$emit('refreshOutput')
           } else {
             this.message = 'Backend refused processing the data'
           }
