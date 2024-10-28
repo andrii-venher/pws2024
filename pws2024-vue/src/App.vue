@@ -18,7 +18,8 @@ export default {
           return 'Out of range 1900-2024'
         }
       },
-      message: false
+      messageDisplayed: false,
+      message: ''
     }
   },
   methods: {
@@ -35,6 +36,7 @@ export default {
           } else {
             this.message = 'Backend refused processing the data'
           }
+          this.messageDisplayed = true
         })
       })
     }
@@ -59,7 +61,7 @@ export default {
     </v-form>
   </div>
 
-  <v-snackbar v-model="message">{{ message }}</v-snackbar>
+  <v-snackbar v-model="messageDisplayed">{{ message }}</v-snackbar>
 </template>
 
 <style scoped>
