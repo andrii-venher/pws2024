@@ -19,15 +19,16 @@ app.use((err, req, res, next) => {
 
 app.use(express.static(config.frontend))
 
-let data = {}
+let series = []
 
 app.get('/api', (req, res) => {
-    res.json(data)
+    res.json(series)
 })
 
 app.post('/api', (req, res) => {
     // check if all required field exists
     let valid = req.body && req.body.firstName && req.body.yearOfBirth
+    let data = {}
     if(valid) {
         // check value restrictions of all the fields
         let yearOfBirth = parseInt(req.body.yearOfBirth)
@@ -35,6 +36,7 @@ app.post('/api', (req, res) => {
             // store the data
             data.firstName = req.body.firstName
             data.yearOfBirth = yearOfBirth
+            series.push(data)
         } else {
             valid = false
         }
