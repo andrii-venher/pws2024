@@ -5,6 +5,7 @@ export default {
       dataGathered: []
     }
   },
+  emits: [ 'dataSelected' ],
   methods: {
     refresh() {
       fetch('/api', {
@@ -12,6 +13,9 @@ export default {
       }).then(res => res.json().then(body => {
         this.dataGathered = body
       }))
+    },
+    dataClicked(data) {
+      this.$emit('dataSelected', data)
     }
   },
   mounted() {
@@ -31,7 +35,7 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="data in dataGathered">
+          <tr v-for="data in dataGathered" @click="dataClicked(data)">
             <td>{{ data.firstName }}</td><td>{{ data.yearOfBirth }}</td>
           </tr>
         </tbody>

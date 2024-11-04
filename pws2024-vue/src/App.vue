@@ -7,14 +7,17 @@ export default {
   methods: {
     onRefreshOutput() {
       this.$refs.dataOutputRef.refresh()
+    },
+    onDataSelected(data) {
+      this.$refs.dataInputRef.importData(data)
     }
   }
 }
 </script>
 
 <template>
-  <DataInput @refresh-output="onRefreshOutput"/>
-  <DataOutput ref="dataOutputRef"/>
+  <DataInput ref="dataInputRef" @refresh-output="onRefreshOutput"/>
+  <DataOutput ref="dataOutputRef" @data-selected="onDataSelected"/>
 </template>
 
 <style scoped>

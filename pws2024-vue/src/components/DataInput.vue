@@ -24,7 +24,7 @@ export default {
   },
   emits: [ 'refreshOutput' ],
   methods: {
-    sendClicked() {
+    createClicked() {
       fetch('/api', {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
@@ -41,6 +41,9 @@ export default {
           this.messageDisplayed = true
         })
       })
+    },
+    importData(data) {
+      this.inputData = data
     }
   }
 }
@@ -55,7 +58,7 @@ export default {
         <v-text-field type=number v-model="inputData.yearOfBirth" label="Year of birth" variant="outlined" :rules="[ rules.validYear ]"></v-text-field>
       </v-card-text>  
       <v-card-actions>
-        <v-btn variant="elevated" color="primary" @click="sendClicked" :disabled="!isValid">Send</v-btn>
+        <v-btn variant="elevated" color="primary" @click="createClicked" :disabled="!isValid">Create</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
