@@ -36,7 +36,7 @@ export default {
             this.message = 'Data accepted'
             this.$emit('refreshOutput')
           } else {
-            this.message = 'Backend refused processing the data'
+            this.message = body.error
           }
           this.messageDisplayed = true
         })

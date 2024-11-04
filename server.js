@@ -2,10 +2,13 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const uuid = require('uuid')
+const mongoose = require('mongoose')
 
 const config = {
     port: 8000,
-    frontend: './pws2024-vue/dist'
+    frontend: './pws2024-vue/dist',
+    dbUrl: 'mongodb://localhost:27017/pws2024'
 }
 
 const app = express()
@@ -19,33 +22,56 @@ app.use((err, req, res, next) => {
 
 app.use(express.static(config.frontend))
 
-let series = []
+const personSchema = new mongoose.Schema({
+    _id: { type: String, default: uuid.v4 },
+    firstName: { type: String, required: true, validate: {
+        validator: v => {
+          return /^[A-Z]/.test(v);
+        },
+        message: props => `${props.value} does not start from a capital`
+      }
+    },
+    yearOfBirth: { type: Number, required: true, min: 1900, max: 2024 }
+}, {
+    versionKey: false,
+    additionalProperties: false
+})
+
+let Person = null
+mongoose.connect(config.dbUrl)
+.then(conn => {
+    console.log(`Connection to ${config.dbUrl} established`)
+    Person = conn.model('Person', personSchema)
+})
+.catch(err => {
+    console.error(`Connection to ${config.dbUrl} cannot be established`)
+    process.exit(0)
+}) 
 
 app.get('/api', (req, res) => {
-    res.json(series)
+    Person.find({})
+        .then(rows => {
+            res.json(rows)
+        })
+        .catch(err => {
+            res.status(400).json({ error: err.message })
+        })
 })
 
 app.post('/api', (req, res) => {
-    // check if all required field exists
-    let valid = req.body && req.body.firstName && req.body.yearOfBirth
-    let data = {}
-    if(valid) {
-        // check value restrictions of all the fields
-        let yearOfBirth = parseInt(req.body.yearOfBirth)
-        if(/^[A-Z]/.test(req.body.firstName) && yearOfBirth >= 1900 && yearOfBirth <= 2024) {
-            // store the data
-            data.firstName = req.body.firstName
-            data.yearOfBirth = yearOfBirth
-            series.push(data)
-        } else {
-            valid = false
-        }
+    let person = new Person(req.body)
+    let err = person.validateSync()
+    if(err) {
+        res.status(400).json({ error: err.message })
+        return    
     }
-    if(valid) {
-        res.json(data)
-    } else {
-        res.status(400).json({ error: 'Invalid data'})
-    }
+    person.save()
+        .then(row => {
+            res.json(row)
+        })
+        .catch(err => {
+            res.status(400).json({ error: err.message })
+        })
 })
 
 app.listen(config.port, () => {
