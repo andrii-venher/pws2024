@@ -74,6 +74,22 @@ app.post('/api', (req, res) => {
         })
 })
 
+app.put('/api', (req, res) => {
+    let _id = req.body._id
+    if(!_id) {
+        res.status(400).json({ error: 'no _id!' })
+        return
+    }
+    delete req.body._id
+    Person.updateOne({ _id }, { $set: req.body }, { runValidators: true })
+        .then(row => {
+            res.json(row)
+        })
+        .catch(err => {
+            res.status(400).json({ error: err.message })
+        })
+})
+
 app.listen(config.port, () => {
     console.log('Backend listening on port', config.port)
 })
