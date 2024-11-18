@@ -31,7 +31,14 @@ const personSchema = new mongoose.Schema({
         message: props => `${props.value} does not start from a capital`
       }
     },
-    yearOfBirth: { type: Number, required: true, min: 1900, max: 2024 }
+    lastName: { type: String, required: true, validate: {
+        validator: v => {
+          return /^[A-Za-z]/.test(v);
+        },
+        message: props => `${props.value} does not start from a letter`
+      }
+    },
+    birthDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) }
 }, {
     versionKey: false,
     additionalProperties: false
@@ -82,6 +89,21 @@ app.put('/api', (req, res) => {
     }
     delete req.body._id
     Person.updateOne({ _id }, { $set: req.body }, { runValidators: true })
+        .then(row => {
+            res.json(row)
+        })
+        .catch(err => {
+            res.status(400).json({ error: err.message })
+        })
+})
+
+app.delete('/api', (req, res) => {
+    let _id = req.query._id
+    if(!_id) {
+        res.status(400).json({ error: 'no _id!' })
+        return
+    }
+    Person.deleteOne({ _id })
         .then(row => {
             res.json(row)
         })

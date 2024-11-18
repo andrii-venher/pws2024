@@ -5,18 +5,22 @@ export default {
       inputData: {
         _id: '',
         firstName: '',
+        lastName: '',
         yearOfBirth: ''
       },
       isValid: false,
       rules: {
-        startsWithLetter: (value) => {
+        startsWithCapital: (value) => {
           if(/^[A-Z]/.test(value)) return true
           return 'It should start with a capital letter'
         },
-        validYear: (value) => {
-          let numValue = parseInt(value)
-          if(numValue >= 1900 && numValue <= 2024) return true
-          return 'Out of range 1900-2024'
+        startsWithLetter: (value) => {
+          if(/^[A-Za-z]/.test(value)) return true
+          return 'It should start with a letter'
+        },
+        validDate: (value) => {
+          let numValue = Date.parse(value)
+          return isNaN(numValue) ? 'Invalid date' : true
         }
       }
     }
@@ -35,9 +39,12 @@ export default {
           if(res.status < 400) {
             this.$emit('displayMessage', 'Data created')
             this.$emit('refreshOutput')
+            this.clearClicked()
           } else {
             this.$emit('displayMessage', body.error, 'error')
           }
+        }).catch(err => {
+          this.$emit('displayMessage', 'Error ' + res.status, 'error')
         })
       })
     },
@@ -55,6 +62,26 @@ export default {
           } else {
             this.$emit('displayMessage', body.error, 'error')
           }
+        }).catch(err => {
+          this.$emit('displayMessage', 'Error ' + res.status, 'error')
+        })
+      })
+    },
+    deleteClicked() {
+      fetch('/api?_id=' + this.inputData._id, {
+        method: 'DELETE'
+      })
+      .then(res => {
+        res.json().then(body => {
+          if(res.status < 400) {
+            this.$emit('displayMessage', 'Data deleted')
+            this.$emit('refreshOutput')
+            this.clearClicked()
+          } else {
+            this.$emit('displayMessage', body.error, 'error')
+          }
+        }).catch(err => {
+          this.$emit('displayMessage', 'Error ' + res.status, 'error')
         })
       })
     },
@@ -79,14 +106,16 @@ export default {
         {{ inputData._id || 'to create' }}
       </v-card-subtitle>
       <v-card-text>
-        <v-text-field v-model="inputData.firstName" label="First name" variant="outlined" :rules="[ rules.startsWithLetter ]"></v-text-field>
-        <v-text-field type=number v-model="inputData.yearOfBirth" label="Year of birth" variant="outlined" :rules="[ rules.validYear ]"></v-text-field>
+        <v-text-field v-model="inputData.firstName" label="First name" variant="outlined" :rules="[ rules.startsWithCapital ]"></v-text-field>
+        <v-text-field v-model="inputData.lastName" label="Last name" variant="outlined" :rules="[ rules.startsWithLetter ]"></v-text-field>
+        <v-text-field type="date" v-model="inputData.birthDate" label="Birth date" variant="outlined" :rules="[ rules.validDate ]"></v-text-field>
       </v-card-text>  
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="elevated" @click="clearClicked">Clear</v-btn>
         <v-btn variant="elevated" color="primary" @click="createClicked" :disabled="!isValid" v-if="!inputData._id">Create</v-btn>
         <v-btn variant="elevated" color="secondary" @click="updateClicked" :disabled="!isValid" v-if="inputData._id">Update</v-btn>
+        <v-btn variant="elevated" color="error" @click="deleteClicked" v-if="inputData._id">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
