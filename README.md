@@ -25,6 +25,7 @@ npm install
 npm start
 ```
 The backend should be available at http://localhost:8000
+If you would like to use your specific configuration, please copy config-example.json to config.json and customize it.
 
 ## Compilation of the frontend for production
 ```

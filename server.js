@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -5,10 +6,18 @@ const morgan = require('morgan')
 const uuid = require('uuid')
 const mongoose = require('mongoose')
 
-const config = {
+// default configuration, override it by config.json
+let config = {
     port: 8000,
     frontend: './pws2024-vue/dist',
-    dbUrl: 'mongodb://localhost:27017/pws2024'
+    dbUrl: 'mongodb://localhost:27017/pws'
+}
+
+try {
+    config = JSON.parse(fs.readFileSync('config.json'))
+    console.log('Configuration from config.json')
+} catch(err) {
+    console.log('Using default configuration')
 }
 
 const app = express()
