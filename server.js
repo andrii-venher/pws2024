@@ -88,7 +88,7 @@ app.put('/api', (req, res) => {
         return
     }
     delete req.body._id
-    Person.updateOne({ _id }, { $set: req.body }, { runValidators: true })
+    Person.findOneAndUpdate({ _id }, { $set: req.body }, { new: true, runValidators: true })
         .then(row => {
             res.json(row)
         })
@@ -103,7 +103,7 @@ app.delete('/api', (req, res) => {
         res.status(400).json({ error: 'no _id!' })
         return
     }
-    Person.deleteOne({ _id })
+    Person.findOneAndDelete({ _id })
         .then(row => {
             res.json(row)
         })

@@ -2,12 +2,7 @@
 export default {
   data() {
     return {
-      inputData: {
-        _id: '',
-        firstName: '',
-        lastName: '',
-        yearOfBirth: ''
-      },
+      inputData: {},
       isValid: false,
       rules: {
         startsWithCapital: (value) => {
@@ -37,7 +32,7 @@ export default {
       .then(res => {
         res.json().then(body => {
           if(res.status < 400) {
-            this.$emit('displayMessage', 'Data created')
+            this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was created')
             this.$emit('refreshOutput')
             this.clearClicked()
           } else {
@@ -57,7 +52,7 @@ export default {
       .then(res => {
         res.json().then(body => {
           if(res.status < 400) {
-            this.$emit('displayMessage', 'Data updated')
+            this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was updated')
             this.$emit('refreshOutput')
           } else {
             this.$emit('displayMessage', body.error, 'error')
@@ -74,7 +69,7 @@ export default {
       .then(res => {
         res.json().then(body => {
           if(res.status < 400) {
-            this.$emit('displayMessage', 'Data deleted')
+            this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was deleted')
             this.$emit('refreshOutput')
             this.clearClicked()
           } else {
@@ -89,7 +84,8 @@ export default {
       this.inputData = {}
     },
     importData(data) {
-      this.inputData = data
+      this.clearClicked()
+      Object.assign(this.inputData, data)
     }
   }
 }

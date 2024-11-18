@@ -5,7 +5,7 @@ export default {
       dataGathered: []
     }
   },
-  emits: [ 'dataSelected' ],
+  emits: [ 'dataSelected', 'displayMessage' ],
   methods: {
     refresh() {
       fetch('/api', {
