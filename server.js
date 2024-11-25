@@ -65,7 +65,20 @@ mongoose.connect(config.dbUrl)
 }) 
 
 app.get('/api', (req, res) => {
-    Person.find({})
+    const search = req.query.search || ''
+    const aggregation = [
+        { $match: { $or: [
+            { firstName: { $regex: search } },
+            { lastName: { $regex: search } }
+        ] } }
+    ]
+    if(req.query.skip) {
+        aggregation.push({ $skip: +req.query.skip })
+    }
+    if(req.query.limit) {
+        aggregation.push({ $limit: +req.query.limit })
+    }
+    Person.aggregate(aggregation)
         .then(rows => {
             res.json(rows)
         })
