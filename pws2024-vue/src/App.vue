@@ -29,8 +29,10 @@ export default {
 
 <template>
   <div class="horizontal">
-    <DataInput ref="dataInputRef" @refresh-output="onRefreshOutput" @display-message="onDisplayMessage" class="horizontalElement"/>
-    <DataOutput ref="dataOutputRef" @data-selected="onDataSelected" @display-message="onDisplayMessage" class="horizontalElement"/>
+    <DataInput ref="dataInputRef" @refresh-output="onRefreshOutput" @display-message="onDisplayMessage"
+      class="horizontalElement" />
+    <DataOutput ref="dataOutputRef" @data-selected="onDataSelected" @display-message="onDisplayMessage"
+      class="horizontalElement" />
   </div>
 
   <v-snackbar v-model="messageDisplayed" :color="messageColor">
@@ -39,6 +41,13 @@ export default {
 </template>
 
 <style scoped>
-  .horizontal { display: flex; }
-  .horizontalElement { flex: 1; width: 400px; margin: 10px 10px; }
+.horizontal {
+  display: flex;
+}
+
+.horizontalElement {
+  flex: 1;
+  width: 400px;
+  margin: 10px 10px;
+}
 </style>
