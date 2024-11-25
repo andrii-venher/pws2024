@@ -1,5 +1,4 @@
 <script>
-import DataInput from './components/DataInput.vue'
 import DataOutput from './components/DataOutput.vue'
 
 export default {
@@ -10,14 +9,8 @@ export default {
       message: ''
     }
   },
-  components: { DataInput, DataOutput },
+  components: { DataOutput },
   methods: {
-    onRefreshOutput() {
-      this.$refs.dataOutputRef.refresh()
-    },
-    onDataSelected(data) {
-      this.$refs.dataInputRef.importData(data)
-    },
     onDisplayMessage(text, color) {
       this.message = text
       this.messageColor = color || 'success'
@@ -28,12 +21,7 @@ export default {
 </script>
 
 <template>
-  <div class="horizontal">
-    <DataInput ref="dataInputRef" @refresh-output="onRefreshOutput" @display-message="onDisplayMessage"
-      class="horizontalElement" />
-    <DataOutput ref="dataOutputRef" @data-selected="onDataSelected" @display-message="onDisplayMessage"
-      class="horizontalElement" />
-  </div>
+  <DataOutput @display-message="onDisplayMessage"/>
 
   <v-snackbar v-model="messageDisplayed" :color="messageColor">
     <div style="width: 100%; text-align: center;">{{ message }}</div>
@@ -41,13 +29,4 @@ export default {
 </template>
 
 <style scoped>
-.horizontal {
-  display: flex;
-}
-
-.horizontalElement {
-  flex: 1;
-  width: 400px;
-  margin: 10px 10px;
-}
 </style>

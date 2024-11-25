@@ -20,7 +20,8 @@ export default {
       }
     }
   },
-  emits: ['refreshOutput', 'displayMessage'],
+  props: [ 'edit' ],
+  emits: [ 'refreshOutput', 'displayMessage', 'closeDialog' ],
   methods: {
     createClicked() {
       delete this.inputData._id
@@ -34,7 +35,7 @@ export default {
             if (res.ok) {
               this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was created')
               this.$emit('refreshOutput')
-              this.clearClicked()
+              this.$emit('closeDialog')
             } else {
               this.$emit('displayMessage', 'Error ' + res.status, 'error')
             }
@@ -54,6 +55,7 @@ export default {
             if (res.ok) {
               this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was updated')
               this.$emit('refreshOutput')
+              this.$emit('closeDialog')
             } else {
               this.$emit('displayMessage', 'Error ' + res.status, 'error')
             }
@@ -71,7 +73,7 @@ export default {
             if (res.ok) {
               this.$emit('displayMessage', body.firstName + ' ' + body.lastName + ' was deleted')
               this.$emit('refreshOutput')
-              this.clearClicked()
+              this.$emit('closeDialog')
             } else {
               this.$emit('displayMessage', 'Error ' + res.status, 'error')
             }
@@ -83,17 +85,23 @@ export default {
     clearClicked() {
       this.inputData = {}
     },
-    importData(data) {
+    cancelClicked() {
+      this.$emit('closeDialog')
+    },
+    importData() {
       this.clearClicked()
-      Object.assign(this.inputData, data)
+      Object.assign(this.inputData, this.edit)
     }
+  },
+  mounted() {
+    this.importData()
   }
 }
 </script>
 
 <template>
   <v-form v-model="isValid">
-    <v-card variant="outlined">
+    <v-card>
       <v-card-title>
         Enter a data
         <v-spacer></v-spacer>
@@ -117,9 +125,11 @@ export default {
         <v-btn variant="elevated" color="secondary" @click="updateClicked" :disabled="!isValid"
           v-if="inputData._id">Update</v-btn>
         <v-btn variant="elevated" color="error" @click="deleteClicked" v-if="inputData._id">Delete</v-btn>
+        <v-btn variant="elevated" @click="cancelClicked">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

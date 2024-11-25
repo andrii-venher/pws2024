@@ -1,11 +1,16 @@
 <script>
+import DataInput from './DataInput.vue'
+
 export default {
   data() {
     return {
-      dataGathered: []
+      dataGathered: [],
+      editDialog: false,
+      editData: {}
     }
   },
-  emits: ['dataSelected', 'displayMessage'],
+  components: { DataInput },
+  emits: ['displayMessage'],
   methods: {
     refresh() {
       fetch('/api', {
@@ -21,7 +26,18 @@ export default {
       }))
     },
     dataClicked(data) {
-      this.$emit('dataSelected', data)
+      this.editData = data
+      this.editDialog = true
+    },
+    createClicked() {
+      this.editData = {}
+      this.editDialog = true
+    },
+    closeDialog() {
+      this.editDialog = false
+    },
+    displayMessage(text, color) {
+      this.$emit('displayMessage', text, color)
     }
   },
   mounted() {
@@ -32,7 +48,7 @@ export default {
 
 <template>
   <v-card variant="outlined">
-    <v-card-title>Data gathered so far</v-card-title>
+    <v-card-title>Data gathered so far <v-btn @click="createClicked">Create</v-btn></v-card-title>
     <v-card-text>
       <v-table density="compact">
         <thead>
@@ -52,6 +68,11 @@ export default {
       </v-table>
     </v-card-text>
   </v-card>
+
+  <v-dialog v-model="editDialog">
+    <DataInput :edit="editData" @close-dialog="closeDialog" @refresh-output="refresh" @display-message="displayMessage"/>
+  </v-dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>
