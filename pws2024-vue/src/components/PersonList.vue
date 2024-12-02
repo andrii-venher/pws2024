@@ -31,7 +31,7 @@
                 let queryString = { skip, limit: itemsPerPage, search: this.search }
                 if(sortBy && sortBy[0]) {
                     queryString.sort = sortBy[0].key
-                    queryString.order = sortBy[0].order
+                    queryString.order = sortBy[0].order == 'asc' ? 1 : -1
                 }            
                 fetch(personEndpoint + '?' + 
                     new URLSearchParams(queryString).toString())
@@ -70,7 +70,7 @@
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"
                 :items-length="itemsLength" :loading="loading" :search="search" :key="tableKey"
                 @update:options="loadItems" @click:row="clickItem"
-                itemsPerPageText="# items on page" pageText="{0}-{1} of {2}">
+                itemsPerPageText="# items on page" pageText="{0}-{1} of {2}" density="compact">
                 <template #item.birthDate="{ item }">
                     {{ new Date(item.birthDate).toLocaleDateString() }}
                 </template>
