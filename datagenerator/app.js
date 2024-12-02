@@ -16,14 +16,14 @@ const personSchema = new mongoose.Schema({
     _id: { type: String, default: uuid.v4 },
     firstName: { type: String, required: true, validate: {
         validator: v => {
-          return /^[A-Z]/.test(v);
+          return /^\p{L}/u.test(v);
         },
-        message: props => `${props.value} does not start from a capital`
+        message: props => `${props.value} does not start from a letter`
       }
     },
     lastName: { type: String, required: true, validate: {
         validator: v => {
-          return /^[A-Za-z]/.test(v);
+          return /^\p{L}/u.test(v);
         },
         message: props => `${props.value} does not start from a letter`
       }

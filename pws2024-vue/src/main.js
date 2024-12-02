@@ -1,4 +1,5 @@
 import './assets/main.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 import { createApp } from 'vue'
 
@@ -12,6 +13,9 @@ import App from './App.vue'
 const vuetify = createVuetify({
     components,
     directives,
+    icons: {
+        defaultSet: 'mdi'
+    }
 })
 
 createApp(App).use(vuetify).mount('#app')

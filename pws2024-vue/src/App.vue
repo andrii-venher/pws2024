@@ -1,5 +1,5 @@
 <script>
-import DataOutput from './components/DataOutput.vue'
+import PersonList from './components/PersonList.vue'
 
 export default {
   data() {
@@ -9,7 +9,7 @@ export default {
       message: ''
     }
   },
-  components: { DataOutput },
+  components: { PersonList },
   methods: {
     onDisplayMessage(text, color) {
       this.message = text
@@ -21,7 +21,7 @@ export default {
 </script>
 
 <template>
-  <DataOutput @display-message="onDisplayMessage"/>
+  <PersonList @display-message="onDisplayMessage"/>
 
   <v-snackbar v-model="messageDisplayed" :color="messageColor">
     <div style="width: 100%; text-align: center;">{{ message }}</div>
