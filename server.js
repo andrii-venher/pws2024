@@ -74,6 +74,10 @@ app.post(authEndpoint, (req, res) => {
     }
 })
 
+app.delete(authEndpoint, (req, res) => {
+    res.json({})
+})
+
 const personEndpoint = '/api/person'
 
 app.get(personEndpoint, (req, res) => {

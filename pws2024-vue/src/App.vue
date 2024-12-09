@@ -1,5 +1,6 @@
 <script>
 import LoginDialog from './components/LoginDialog.vue'
+import LogoutDialog from './components/LogoutDialog.vue'
 
 export default {
   data() {
@@ -7,10 +8,11 @@ export default {
       messageDisplayed: false,
       messageColor: 'red',
       message: '',
-      loginDialog: false
+      loginDialog: false,
+      logoutDialog: false
     }
   },
-  components: { LoginDialog },
+  components: { LoginDialog, LogoutDialog },
   methods: {
     onDisplayMessage(text, color) {
       this.message = text
@@ -19,6 +21,7 @@ export default {
     },
     onLogin(text, color) {
       this.loginDialog = false
+      this.logoutDialog = false
       if(text) {
         this.onDisplayMessage(text, color)
       }
@@ -41,6 +44,7 @@ export default {
     
     <v-list density="compact" nav>
         <v-list-item key="Login" @click="loginDialog = true" prepend-icon="mdi-login" title="Login" exact/>
+        <v-list-item key="Logout" @click="logoutDialog = true" prepend-icon="mdi-logout" title="Logout" exact/>
     </v-list>
 
   </v-navigation-drawer>
@@ -55,6 +59,10 @@ export default {
 
   <v-dialog v-model="loginDialog" width="33%">
     <LoginDialog @close="onLogin"/>
+  </v-dialog>
+
+  <v-dialog v-model="logoutDialog" width="33%">
+    <LogoutDialog @close="onLogin"/>
   </v-dialog>
 </v-app>
 </template>
