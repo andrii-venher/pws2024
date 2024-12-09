@@ -1,3 +1,4 @@
+// foreign dependencies
 const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
@@ -5,6 +6,9 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const uuid = require('uuid')
 const mongoose = require('mongoose')
+const expressSession = require('express-session')
+const passport = require('passport')
+const passportJson = require('passport-json')
 
 // default configuration, override it by config.json
 let config = {
@@ -20,6 +24,9 @@ try {
     console.log('Using default configuration')
 }
 
+// own modules
+const auth = require('./auth')
+
 const app = express()
 
 app.use(morgan('tiny'))
@@ -29,7 +36,21 @@ app.use((err, req, res, next) => {
     res.status(400).json({ error: err.message })
 })
 
+// initialize mechanisms of sessions handling and authorization
+app.use(expressSession({ secret: config.dbUrl, resave: false, saveUninitialized: true }))
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new passportJson.Strategy(auth.checkCredentials))
+passport.serializeUser(auth.serialize)
+passport.deserializeUser(auth.deserialize)
+
 app.use(express.static(config.frontend))
+
+// authentication endpoints
+const authEndpoint = '/api/auth'
+app.get(authEndpoint, auth.whoami)
+app.post(authEndpoint, passport.authenticate('json', { failWithError: true }), auth.login, auth.errorHandler)
+app.delete(authEndpoint, auth.logout)
 
 const personSchema = new mongoose.Schema({
     _id: { type: String, default: uuid.v4 },
@@ -63,20 +84,6 @@ mongoose.connect(config.dbUrl)
     console.error(`Connection to ${config.dbUrl} cannot be established`)
     process.exit(0)
 }) 
-
-const authEndpoint = '/api/auth'
-
-app.post(authEndpoint, (req, res) => {
-    if(req.body.username == req.body.password) {
-        res.json({})
-    } else {
-        res.status(401).json({ error: 'Wrong credentials' })
-    }
-})
-
-app.delete(authEndpoint, (req, res) => {
-    res.json({})
-})
 
 const personEndpoint = '/api/person'
 
