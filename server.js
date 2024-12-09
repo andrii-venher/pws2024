@@ -64,6 +64,16 @@ mongoose.connect(config.dbUrl)
     process.exit(0)
 }) 
 
+const authEndpoint = '/api/auth'
+
+app.post(authEndpoint, (req, res) => {
+    if(req.body.username == req.body.password) {
+        res.json({})
+    } else {
+        res.status(401).json({ error: 'Wrong credentials' })
+    }
+})
+
 const personEndpoint = '/api/person'
 
 app.get(personEndpoint, (req, res) => {
