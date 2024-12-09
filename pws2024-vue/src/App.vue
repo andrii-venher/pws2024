@@ -1,20 +1,27 @@
 <script>
-import PersonList from './components/PersonList.vue'
+import LoginDialog from './components/LoginDialog.vue'
 
 export default {
   data() {
     return {
       messageDisplayed: false,
       messageColor: 'red',
-      message: ''
+      message: '',
+      loginDialog: false
     }
   },
-  components: { PersonList },
+  components: { LoginDialog },
   methods: {
     onDisplayMessage(text, color) {
       this.message = text
       this.messageColor = color || 'success'
       this.messageDisplayed = true
+    },
+    onLogin(text, color) {
+      this.loginDialog = false
+      if(text) {
+        this.onDisplayMessage(text, color)
+      }
     }
   }
 }
@@ -30,16 +37,25 @@ export default {
         <v-list-item href="/#/persons" prepend-icon="mdi-account-tie-woman" title="Persons" exact/>
     </v-list>
 
+    <v-spacer></v-spacer>
+    
+    <v-list density="compact" nav>
+        <v-list-item key="Login" @click="loginDialog = true" prepend-icon="mdi-login" title="Login" exact/>
+    </v-list>
+
   </v-navigation-drawer>
 
   <v-main>
     <router-view @display-message="onDisplayMessage"></router-view>
   </v-main>
 
-  <v-snackbar v-model="messageDisplayed" :color="messageColor">
+  <v-snackbar v-model="messageDisplayed" :color="messageColor" :timeout="5000">
     <div style="width: 100%; text-align: center;">{{ message }}</div>
   </v-snackbar>
 
+  <v-dialog v-model="loginDialog" width="33%">
+    <LoginDialog @close="onLogin"/>
+  </v-dialog>
 </v-app>
 </template>
 
