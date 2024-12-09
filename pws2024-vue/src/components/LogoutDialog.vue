@@ -28,20 +28,17 @@
 </script>
 
 <template>
-    <v-form v-model="isValid">
-        <v-card>
-            <v-card-title>Logout</v-card-title>
-            <v-card-text>
-                Are you sure?
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" variant="elevated" @click="logout">Logout</v-btn>
-                <v-btn variant="elevated" @click="close">Close</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-form>
-
+    <v-card>
+        <v-card-title>Logout</v-card-title>
+        <v-card-text>
+            Are you sure?
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" variant="elevated" @click="logout">Logout</v-btn>
+            <v-btn variant="elevated" @click="close">Close</v-btn>
+        </v-card-actions>
+    </v-card>
 </template>
 
 <style scoped>

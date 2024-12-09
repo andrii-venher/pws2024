@@ -24,23 +24,27 @@ export default {
     onLogin(text, color) {
       this.loginDialog = false
       this.logoutDialog = false
-      if (text) {
+      if(text) {
         this.onDisplayMessage(text, color)
       }
+      this.whoami()
+    },
+    whoami() {
+      fetch('/api/auth').then(res => {
+        res.json().then(data => {
+          if (!res.ok) {
+            this.generalError = true
+          } else {
+            this.session = data
+          }
+        }).catch(err => {
+          this.generalError = true
+        })
+      })
     }
   },
   mounted() {
-    fetch('/api/auth').then(res => {
-      res.json().then(data => {
-        if (!res.ok) {
-          this.generalError = true
-        } else {
-          this.session = data
-        }
-      }).catch(err => {
-        this.generalError = true
-      })
-    })
+    this.whoami()
   }
 }
 </script>
@@ -57,9 +61,9 @@ export default {
 
       <v-spacer></v-spacer>
 
-      <v-list density="compact" nav>
-        <v-list-item key="Login" @click="loginDialog = true" prepend-icon="mdi-login" title="Login" exact />
-        <v-list-item key="Logout" @click="logoutDialog = true" prepend-icon="mdi-logout" title="Logout" exact />
+      <v-list nav>
+        <v-list-item key="Login" @click="loginDialog = true" @close="onLogin" prepend-icon="mdi-login" title="Login" exact v-if="!session.username"/>
+        <v-list-item key="Logout" @click="logoutDialog = true" @close="onLogin" prepend-icon="mdi-logout" title="Logout" exact v-if="session.username"/>
       </v-list>
 
     </v-navigation-drawer>

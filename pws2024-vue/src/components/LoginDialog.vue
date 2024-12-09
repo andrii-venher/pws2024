@@ -14,7 +14,6 @@
                 }
             }
         },
-        props: [ ],
         emits: [ 'close' ],
         methods: {
            send() {
@@ -31,6 +30,7 @@
                         this.$emit('close', 'Successful login')
                     }
                 }).catch(err => {
+                    console.error(err)
                     this.$emit('close', 'Backend does not respond', 'error')
                 })
               })
