@@ -20,15 +20,10 @@ const vuetify = createVuetify({
 
 // Router
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Dashboard from './components/Dashboard.vue'
-import PersonList from './components/PersonList.vue'
 
 const router = createRouter({
     history: createWebHashHistory(),
-    routes: [
-        { path: '/', component: Dashboard },
-        { path: '/persons', component: PersonList }
-    ]
+    routes: App.data().routes
 })
 
 createApp(App).use(vuetify).use(router).mount('#app')

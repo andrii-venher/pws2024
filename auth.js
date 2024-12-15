@@ -21,10 +21,7 @@ User.findOne({ username: 'admin' })
         admin.save()
     }
 })
-.catch(err => {
-    console.error(err.message)
-    process.exit(0)
-})
+.catch(err => {})
 
 // create user 'user' if it does not exist
 User.findOne({ username: 'user' })
@@ -34,10 +31,7 @@ User.findOne({ username: 'user' })
         admin.save()
     }
 })
-.catch(err => {
-    console.error(err.message)
-    process.exit(0)
-})
+.catch(err => {})
 
 const auth = module.exports = {
 

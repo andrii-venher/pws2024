@@ -1,10 +1,16 @@
 <script>
 import LoginDialog from './components/LoginDialog.vue'
 import LogoutDialog from './components/LogoutDialog.vue'
+import Dashboard from './components/Dashboard.vue'
+import PersonList from './components/PersonList.vue'
 
 export default {
   data() {
     return {
+      routes: [
+        { path: '/', component: Dashboard, icon: 'mdi-home', title: 'Dashboard' },
+        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' }
+      ],
       messageDisplayed: false,
       messageColor: 'red',
       message: '',
@@ -21,13 +27,16 @@ export default {
       this.messageColor = color || 'success'
       this.messageDisplayed = true
     },
-    onLogin(text, color) {
+    onLogin(text, color = 'success') {
       this.loginDialog = false
       this.logoutDialog = false
       if(text) {
         this.onDisplayMessage(text, color)
       }
-      this.whoami()
+      if(color == 'success') {
+        this.whoami()
+        this.$router.push('/')
+      }
     },
     whoami() {
       fetch('/api/auth').then(res => {
@@ -55,8 +64,7 @@ export default {
     <v-navigation-drawer expand-on-hover rail permanent>
 
       <v-list nav>
-        <v-list-item href="/#/" prepend-icon="mdi-home" title="Dashboard" exact />
-        <v-list-item href="/#/persons" prepend-icon="mdi-account-tie-woman" title="Persons" exact />
+        <v-list-item v-for="route in routes" :to="route.path" :prepend-icon="route.icon" :title="route.title" exact/>
       </v-list>
 
       <v-spacer></v-spacer>

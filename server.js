@@ -10,6 +10,8 @@ const expressSession = require('express-session')
 const passport = require('passport')
 const passportJson = require('passport-json')
 
+console.log('Backend starting...')
+
 // default configuration, override it by config.json
 let config = {
     port: 8000,
@@ -75,15 +77,6 @@ const personSchema = new mongoose.Schema({
 })
 
 let Person = null
-mongoose.connect(config.dbUrl)
-.then(conn => {
-    console.log(`Connection to ${config.dbUrl} established`)
-    Person = conn.model('Person', personSchema)
-})
-.catch(err => {
-    console.error(`Connection to ${config.dbUrl} cannot be established`)
-    process.exit(0)
-}) 
 
 const personEndpoint = '/api/person'
 
@@ -176,6 +169,16 @@ app.delete(personEndpoint, (req, res) => {
         })
 })
 
-app.listen(config.port, () => {
-    console.log('Backend listening on port', config.port)
+mongoose.connect(config.dbUrl)
+.then(conn => {
+    console.log(`Connection to ${config.dbUrl} established`)
+    Person = conn.model('Person', personSchema)
+
+    app.listen(config.port, () => {
+        console.log('Backend listening on port', config.port)
+    })    
+})
+.catch(err => {
+    console.error(`Connection to ${config.dbUrl} cannot be established`)
+    process.exit(0)
 })
