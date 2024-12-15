@@ -1,16 +1,10 @@
 <script>
 import LoginDialog from './components/LoginDialog.vue'
 import LogoutDialog from './components/LogoutDialog.vue'
-import Dashboard from './components/Dashboard.vue'
-import PersonList from './components/PersonList.vue'
 
 export default {
   data() {
     return {
-      routes: [
-        { path: '/', component: Dashboard, icon: 'mdi-home', title: 'Dashboard' },
-        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' }
-      ],
       messageDisplayed: false,
       messageColor: 'red',
       message: '',
@@ -64,7 +58,7 @@ export default {
     <v-navigation-drawer expand-on-hover rail permanent>
 
       <v-list nav>
-        <v-list-item v-for="route in routes" :to="route.path" :prepend-icon="route.icon" :title="route.title" exact/>
+        <v-list-item v-for="route in $router.options.routes" :to="route.path" :prepend-icon="route.icon" :title="route.title" exact/>
       </v-list>
 
       <v-spacer></v-spacer>

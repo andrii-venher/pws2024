@@ -18,12 +18,18 @@ const vuetify = createVuetify({
     }
 })
 
+import Dashboard from './components/Dashboard.vue'
+import PersonList from './components/PersonList.vue'
+
 // Router
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
     history: createWebHashHistory(),
-    routes: App.data().routes
+    routes: [
+        { path: '/', component: Dashboard, icon: 'mdi-home', title: 'Dashboard' },
+        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' }
+    ]
 })
 
 createApp(App).use(vuetify).use(router).mount('#app')

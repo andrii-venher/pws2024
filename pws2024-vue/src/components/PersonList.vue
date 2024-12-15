@@ -6,6 +6,7 @@
     export default {
         components: { PersonEditor },
         emits: [ 'displayMessage' ],
+        props: [ 'session' ],
         data() {
             return {
                 persons: {},
@@ -13,10 +14,10 @@
                 editor: false,
                 itemsPerPage: 10,
                 headers: [
-                        { title: 'First name', key: 'firstName', align: 'start', sortable: true },
-                        { title: 'Last name', key: 'lastName', align: 'start' },
-                        { title: 'Birth date', key: 'birthDate', align: 'end' }
-                    ],
+                    { title: 'First name', key: 'firstName', align: 'start', sortable: true },
+                    { title: 'Last name', key: 'lastName', align: 'start' },
+                    { title: 'Birth date', key: 'birthDate', align: 'end' }
+                ],
                 loading: false,
                 search: '',
                 itemsLength: 0,
