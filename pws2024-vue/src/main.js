@@ -20,6 +20,7 @@ const vuetify = createVuetify({
 
 import Dashboard from './components/Dashboard.vue'
 import PersonList from './components/PersonList.vue'
+import ProjectList from './components/ProjectList.vue'
 
 // Router
 import { createRouter, createWebHashHistory } from 'vue-router'
@@ -28,7 +29,8 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         { path: '/', component: Dashboard, icon: 'mdi-home', title: 'Dashboard' },
-        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' }
+        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' },
+        { path: '/projects', component: ProjectList, icon: 'mdi-projector', title: 'Projects' }
     ]
 })
 
