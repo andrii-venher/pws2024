@@ -1,4 +1,5 @@
 <script>
+    import common from '../mixins/common'
     import ProjectEditor from './ProjectEditor.vue'
 
     const projectEndpoint = '/api/project'
@@ -7,6 +8,7 @@
         components: { ProjectEditor },
         emits: [ 'displayMessage' ],
         props: [ 'session' ],
+        mixins: [ common ],
         data() {
             return {
                 projects: {},
@@ -43,8 +45,10 @@
                 }))
             },
             clickItem(item, event) {
-                this.project = event.item
-                this.editor = true
+                if(this.checkIfInRole(this.session, [0])) {
+                    this.project = event.item
+                    this.editor = true
+                }
             },
             add() {
                 this.project = {}
@@ -65,7 +69,7 @@
         <v-card-title class="d-flex">
             Projects
             <v-spacer></v-spacer>
-            <v-btn @click="add">Add</v-btn>
+            <v-btn @click="add" v-show="checkIfInRole(session, [0])">Add</v-btn>
         </v-card-title>
         <v-card-text>
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"

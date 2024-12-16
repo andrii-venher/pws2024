@@ -1,4 +1,5 @@
 <script>
+import common from './mixins/common'
 import LoginDialog from './components/LoginDialog.vue'
 import LogoutDialog from './components/LogoutDialog.vue'
 
@@ -15,6 +16,7 @@ export default {
     }
   },
   components: { LoginDialog, LogoutDialog },
+  mixins: [ common ],
   methods: {
     onDisplayMessage(text, color) {
       this.message = text
@@ -58,7 +60,7 @@ export default {
     <v-navigation-drawer expand-on-hover rail permanent>
 
       <v-list nav>
-        <v-list-item v-for="route in $router.options.routes" :to="route.path" :prepend-icon="route.icon" :title="route.title" exact/>
+        <v-list-item v-for="route in $router.options.routes" :to="route.path" :prepend-icon="route.icon" :title="route.title" exact v-show="!route.roles || checkIfInRole(session, route.roles)"/>
       </v-list>
 
       <v-spacer></v-spacer>

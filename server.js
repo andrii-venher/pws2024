@@ -80,7 +80,7 @@ let Person = null
 
 const personEndpoint = '/api/person'
 
-app.get(personEndpoint, (req, res) => {
+app.get(personEndpoint, auth.checkIfInRole([0,1]), (req, res) => {
     let sort = {}
     if(req.query.sort) {
         sort[req.query.sort] = +req.query.order || 1
@@ -119,7 +119,7 @@ app.get(personEndpoint, (req, res) => {
     })  
 })
 
-app.post(personEndpoint, (req, res) => {
+app.post(personEndpoint, auth.checkIfInRole([0]),  (req, res) => {
     let person = new Person(req.body)
     let err = person.validateSync()
     if(err) {
@@ -135,7 +135,7 @@ app.post(personEndpoint, (req, res) => {
         })
 })
 
-app.put(personEndpoint, (req, res) => {
+app.put(personEndpoint, auth.checkIfInRole([0]), (req, res) => {
     let _id = req.body._id
     if(!_id) {
         res.status(400).json({ error: 'no _id!' })
@@ -151,7 +151,7 @@ app.put(personEndpoint, (req, res) => {
         })
 })
 
-app.delete(personEndpoint, (req, res) => {
+app.delete(personEndpoint, auth.checkIfInRole([0]), (req, res) => {
     let _id = req.query._id
     if(!_id) {
         res.status(400).json({ error: 'no _id!' })
@@ -220,7 +220,7 @@ app.get(projectEndpoint, (req, res) => {
     })  
 })
 
-app.post(projectEndpoint, (req, res) => {
+app.post(projectEndpoint, auth.checkIfInRole([0]), (req, res) => {
     let project = new Project(req.body)
     let err = project.validateSync()
     if(err) {
@@ -236,7 +236,7 @@ app.post(projectEndpoint, (req, res) => {
         })
 })
 
-app.put(projectEndpoint, (req, res) => {
+app.put(projectEndpoint, auth.checkIfInRole([0]), (req, res) => {
     let _id = req.body._id
     if(!_id) {
         res.status(400).json({ error: 'no _id!' })
@@ -252,7 +252,7 @@ app.put(projectEndpoint, (req, res) => {
         })
 })
 
-app.delete(projectEndpoint, (req, res) => {
+app.delete(projectEndpoint, auth.checkIfInRole([0]), (req, res) => {
     let _id = req.query._id
     if(!_id) {
         res.status(400).json({ error: 'no _id!' })

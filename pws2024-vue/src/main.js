@@ -29,7 +29,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         { path: '/', component: Dashboard, icon: 'mdi-home', title: 'Dashboard' },
-        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons' },
+        { path: '/persons', component: PersonList, icon: 'mdi-account-tie-woman', title: 'Persons', roles: [0,1] },
         { path: '/projects', component: ProjectList, icon: 'mdi-projector', title: 'Projects' }
     ]
 })
