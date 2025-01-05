@@ -15,7 +15,8 @@ module.exports = {
               }
             },
             startDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) },
-            endDate: { type: Date, required: false, transform: v => v.toISOString().substr(0, 10) }
+            endDate: { type: Date, required: false, transform: v => v.toISOString().substr(0, 10) },
+            contractor_ids: [ String ], default: []
         }, {
             versionKey: false,
             additionalProperties: false
@@ -42,6 +43,12 @@ module.exports = {
         if(!isNaN(limit) && limit > 0) {
             aggregation.push({ $limit: limit })
         }
+        aggregation.push({ $lookup: {
+            from: 'people',
+            localField: 'contractor_ids',
+            foreignField: '_id',
+            as: 'contractors'
+        }})
         this.model.aggregate([{ $facet: {
             total: [ matching, { $count: 'count' } ],
             data: aggregation

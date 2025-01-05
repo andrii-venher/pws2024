@@ -19,7 +19,7 @@
                 }
             }
         },
-        props: [ 'project' ],
+        props: [ 'project', 'persons' ],
         emits: [ 'close', 'listChanged' ],
         methods: {
            send() {
@@ -109,6 +109,11 @@
                 </v-text-field>
                 <v-text-field type="date" variant="outlined" label="End date" v-model="input.endDate" :rules="[ rules.validDate ]">
                 </v-text-field>
+                <v-autocomplete
+                    label="Contractors" variant="outlined" multiple v-model="input.contractor_ids"
+                    :items="persons" :item-title="item => item.firstName + ' ' + item.lastName" item-value="_id"
+                >
+                </v-autocomplete>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
