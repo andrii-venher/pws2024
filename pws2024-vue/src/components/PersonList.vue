@@ -18,7 +18,8 @@
                 headers: [
                     { title: 'First name', key: 'firstName', align: 'start', sortable: true },
                     { title: 'Last name', key: 'lastName', align: 'start' },
-                    { title: 'Birth date', key: 'birthDate', align: 'end' }
+                    { title: 'Birth date', key: 'birthDate', align: 'end' },
+                    { title: '#Projects', key: 'project_ids', align: 'end' }
                 ],
                 loading: false,
                 search: '',
@@ -35,7 +36,10 @@
                 if(sortBy && sortBy[0]) {
                     queryString.sort = sortBy[0].key
                     queryString.order = sortBy[0].order == 'asc' ? 1 : -1
-                }            
+                } else {
+                    queryString.sort = 'lastName'
+                    queryString.order = 1
+                }           
                 fetch(personEndpoint + '?' + 
                     new URLSearchParams(queryString).toString())
                 .then(res => res.json().then(facet => {
@@ -78,6 +82,9 @@
                 itemsPerPageText="# items on page" pageText="{0}-{1} of {2}" density="compact">
                 <template #item.birthDate="{ item }">
                     {{ new Date(item.birthDate).toLocaleDateString() }}
+                </template>
+                <template #item.project_ids="{ item }">
+                    {{ item.project_ids ? item.project_ids.length : 0 }}
                 </template>
                 <template #footer.prepend>
                     <v-text-field v-model="search" class="mr-5" variant="outlined" density="compact" placeholder="search..."

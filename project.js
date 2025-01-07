@@ -1,11 +1,11 @@
 const uuid = require('uuid')
 const mongoose = require('mongoose')
 
-module.exports = {
+const project = module.exports = {
     model: null,
     endpoint: '/api/project',
     init: conn => {
-        this.schema = new mongoose.Schema({
+        project.schema = new mongoose.Schema({
             _id: { type: String, default: uuid.v4 },
             name: { type: String, required: true, validate: {
                 validator: v => {
@@ -21,7 +21,7 @@ module.exports = {
             versionKey: false,
             additionalProperties: false
         })
-        this.model = conn.model('Project', this.schema)
+        project.model = conn.model('Project', project.schema)
     },
     schema: null,
     get: (req, res) => {
@@ -43,14 +43,14 @@ module.exports = {
         if(!isNaN(limit) && limit > 0) {
             aggregation.push({ $limit: limit })
         }
-        this.model.aggregate([{ $facet: {
+        project.model.aggregate([{ $facet: {
             total: [ matching, { $count: 'count' } ],
             data: aggregation
         }}])
         .then(facet => {
             [ facet ] = facet
             facet.total = ( facet.total && facet.total[0] ? facet.total[0].count : 0) || 0
-            facet.data = facet.data.map(project => new this.model(project))
+            facet.data = facet.data.map(item => new project.model(item))
             res.json(facet)
         })
         .catch(err => {
@@ -58,13 +58,13 @@ module.exports = {
         })  
     },
     post: (req, res) => {
-        let project = new this.model(req.body)
-        let err = project.validateSync()
+        let item = new project.model(req.body)
+        let err = item.validateSync()
         if(err) {
             res.status(400).json({ error: err.message })
             return    
         }
-        project.save()
+        item.save()
             .then(row => {
                 res.json(row)
             })
@@ -79,7 +79,7 @@ module.exports = {
             return
         }
         delete req.body._id
-        this.model.findOneAndUpdate({ _id }, { $set: req.body }, { new: true, runValidators: true })
+        project.model.findOneAndUpdate({ _id }, { $set: req.body }, { new: true, runValidators: true })
             .then(row => {
                 res.json(row)
             })
@@ -93,7 +93,7 @@ module.exports = {
             res.status(400).json({ error: 'no _id!' })
             return
         }
-        this.model.findOneAndDelete({ _id })
+        project.model.findOneAndDelete({ _id })
             .then(row => {
                 res.json(row)
             })

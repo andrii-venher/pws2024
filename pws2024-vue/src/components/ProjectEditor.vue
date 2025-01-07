@@ -94,7 +94,7 @@
         mounted() {
             Object.assign(this.input, this.project)
             fetch(personEndpoint + '?' + 
-                    new URLSearchParams({ sort: 'firstName', order: 'asc' }).toString())
+                    new URLSearchParams({ sort: 'lastName', order: 1 }).toString())
                 .then(res => res.json().then(facet => {
                     this.personItems = facet.data
                 }))

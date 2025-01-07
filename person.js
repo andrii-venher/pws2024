@@ -1,11 +1,13 @@
 const uuid = require('uuid')
 const mongoose = require('mongoose')
 
-module.exports = {
+const project = require('./project')
+
+const person = module.exports = {
     model: null,
     endpoint: '/api/person',
     init: conn => {
-        this.schema = new mongoose.Schema({
+        person.schema = new mongoose.Schema({
             _id: { type: String, default: uuid.v4 },
             firstName: { type: String, required: true, validate: {
                 validator: v => {
@@ -21,12 +23,13 @@ module.exports = {
                 message: props => `${props.value} does not start from a letter`
               }
             },
-            birthDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) }
+            birthDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) },
+            project_ids: { type: [ String ], select: false }
         }, {
             versionKey: false,
             additionalProperties: false
         })
-        this.model = conn.model('Person', this.schema)
+        person.model = conn.model('Person', person.schema)
     },
     schema: null,
     get: (req, res) => {
@@ -53,14 +56,19 @@ module.exports = {
         if(!isNaN(limit) && limit > 0) {
             aggregation.push({ $limit: limit })
         }
-        this.model.aggregate([{ $facet: {
+        aggregation.push(
+            { $lookup: { from: 'projects', localField: '_id', foreignField: 'contractor_ids', as: 'projects' } },
+            { $set: { project_ids: { $map : { input: '$projects', as: 'item', in: '$$item._id' } } } },
+            { $unset: 'projects' }
+        )
+        person.model.aggregate([{ $facet: {
             total: [ matching, { $count: 'count' } ],
             data: aggregation
         }}])
         .then(facet => {
             [ facet ] = facet
             facet.total = ( facet.total && facet.total[0] ? facet.total[0].count : 0) || 0
-            facet.data = facet.data.map(person => new this.model(person))
+            facet.data = facet.data.map(item => new person.model(item))
             res.json(facet)
         })
         .catch(err => {
@@ -68,13 +76,13 @@ module.exports = {
         })  
     },
     post: (req, res) => {
-        let person = new this.model(req.body)
-        let err = person.validateSync()
+        let item = new person.model(req.body)
+        let err = item.validateSync()
         if(err) {
             res.status(400).json({ error: err.message })
             return    
         }
-        person.save()
+        item.save()
             .then(row => {
                 res.json(row)
             })
@@ -89,7 +97,7 @@ module.exports = {
             return
         }
         delete req.body._id
-        this.model.findOneAndUpdate({ _id }, { $set: req.body }, { new: true, runValidators: true })
+        person.model.findOneAndUpdate({ _id }, { $set: req.body }, { new: true, runValidators: true })
             .then(row => {
                 res.json(row)
             })
@@ -103,9 +111,16 @@ module.exports = {
             res.status(400).json({ error: 'no _id!' })
             return
         }
-        this.model.findOneAndDelete({ _id })
+        person.model.findOneAndDelete({ _id })
             .then(row => {
-                res.json(row)
+                project.model.updateMany(
+                    { contractor_ids: _id },
+                    { $pull: { contractor_ids: _id } }
+                ).then(() => {
+                    res.json(row)
+                }).catch(err => {
+                    res.status(400).json('error', err.message)
+                })
             })
             .catch(err => {
                 res.status(400).json({ error: err.message })

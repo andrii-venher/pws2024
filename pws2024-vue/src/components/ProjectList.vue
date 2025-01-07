@@ -19,7 +19,7 @@
                     { title: 'Name', key: 'name', align: 'start', sortable: true },
                     { title: 'Start date', key: 'startDate', align: 'end' },
                     { title: 'End date', key: 'endDate', align: 'end' },
-                    { title: 'Contractors', key: 'contractor_ids', align: 'start' }
+                    { title: '#Contractors', key: 'contractor_ids', align: 'end' }
                 ],
                 loading: false,
                 search: '',
