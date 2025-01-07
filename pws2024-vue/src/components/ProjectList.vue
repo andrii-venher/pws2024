@@ -18,7 +18,8 @@
                 headers: [
                     { title: 'Name', key: 'name', align: 'start', sortable: true },
                     { title: 'Start date', key: 'startDate', align: 'end' },
-                    { title: 'End date', key: 'endDate', align: 'end' }
+                    { title: 'End date', key: 'endDate', align: 'end' },
+                    { title: 'Contractors', key: 'contractor_ids', align: 'start' }
                 ],
                 loading: false,
                 search: '',
@@ -81,6 +82,9 @@
                 </template>
                 <template #item.endDate="{ item }">
                     {{ item.endDate ? new Date(item.endDate).toLocaleDateString() : '' }}
+                </template>
+                <template #item.contractor_ids="{ item }">
+                    {{ item.contractor_ids ? item.contractor_ids.length : 0 }}
                 </template>
                 <template #footer.prepend>
                     <v-text-field v-model="search" class="mr-5" variant="outlined" density="compact" placeholder="search..."

@@ -15,7 +15,8 @@ module.exports = {
               }
             },
             startDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) },
-            endDate: { type: Date, required: false, transform: v => v.toISOString().substr(0, 10) }
+            endDate: { type: Date, required: false, transform: v => v.toISOString().substr(0, 10) },
+            contractor_ids: { type: [ String ], required: false, default: [] }
         }, {
             versionKey: false,
             additionalProperties: false

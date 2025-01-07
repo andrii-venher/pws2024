@@ -1,10 +1,12 @@
 <script>
 
     const projectEndpoint = '/api/project'
+    const personEndpoint = '/api/person'
 
     export default {
         data() {
             return {
+                personItems: [],
                 isValid: false,
                 input: {},
                 rules: {
@@ -91,6 +93,11 @@
         },
         mounted() {
             Object.assign(this.input, this.project)
+            fetch(personEndpoint + '?' + 
+                    new URLSearchParams({ sort: 'firstName', order: 'asc' }).toString())
+                .then(res => res.json().then(facet => {
+                    this.personItems = facet.data
+                }))
         }
     }
 </script>
@@ -109,6 +116,10 @@
                 </v-text-field>
                 <v-text-field type="date" variant="outlined" label="End date" v-model="input.endDate" :rules="[ rules.validDate ]">
                 </v-text-field>
+                <v-autocomplete variant="outlined" v-model="input.contractor_ids"
+                    chips label="Contractors" multiple
+                    :items="personItems" :item-title="item => item.firstName + ' ' + item.lastName" item-value="_id"
+                ></v-autocomplete>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
