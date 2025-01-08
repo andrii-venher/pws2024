@@ -12,7 +12,7 @@
         mixins: [ common ],
         data() {
             return {
-                projects: {},
+                projects: [],
                 project: {},
                 persons: [],
                 editor: false,

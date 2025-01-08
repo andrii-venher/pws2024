@@ -11,7 +11,7 @@
         mixins: [ common ],
         data() {
             return {
-                persons: {},
+                persons: [],
                 person: {},
                 editor: false,
                 itemsPerPage: 10,
