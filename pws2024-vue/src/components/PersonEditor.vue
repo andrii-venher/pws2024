@@ -90,7 +90,6 @@
            }  
         },
         mounted() {
-            console.log(this.person)
             Object.assign(this.input, this.person)
         }
     }

@@ -50,7 +50,7 @@ const project = module.exports = {
         .then(facet => {
             [ facet ] = facet
             facet.total = ( facet.total && facet.total[0] ? facet.total[0].count : 0) || 0
-            facet.data = facet.data.map(item => new project.model(item))
+            facet.data = facet.data.map(item => new project.model(item).toObject())
             res.json(facet)
         })
         .catch(err => {

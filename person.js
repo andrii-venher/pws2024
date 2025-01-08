@@ -23,8 +23,7 @@ const person = module.exports = {
                 message: props => `${props.value} does not start from a letter`
               }
             },
-            birthDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) },
-            project_ids: { type: [ String ], select: false }
+            birthDate: { type: Date, required: true, transform: v => v.toISOString().substr(0, 10) }
         }, {
             versionKey: false,
             additionalProperties: false
@@ -68,7 +67,11 @@ const person = module.exports = {
         .then(facet => {
             [ facet ] = facet
             facet.total = ( facet.total && facet.total[0] ? facet.total[0].count : 0) || 0
-            facet.data = facet.data.map(item => new person.model(item))
+            facet.data = facet.data.map(item => {
+                const newItem = new person.model(item).toObject()
+                newItem.project_ids = item.project_ids
+                return newItem
+            })
             res.json(facet)
         })
         .catch(err => {
