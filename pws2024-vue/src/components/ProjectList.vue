@@ -3,6 +3,7 @@
     import ProjectEditor from './ProjectEditor.vue'
 
     const projectEndpoint = '/api/project'
+    const personEndpoint = '/api/person'
 
     export default {
         components: { ProjectEditor },
@@ -13,6 +14,7 @@
             return {
                 projects: {},
                 project: {},
+                persons: [],
                 editor: false,
                 itemsPerPage: 10,
                 headers: [
@@ -61,6 +63,12 @@
                     this.$emit('displayMessage', text, color)
                 }
             }
+        },
+        mounted() {
+            fetch(personEndpoint + '?' + new URLSearchParams({ sort: 'firstName', order: 1 }).toString())
+                .then(res => res.json().then(facet => {
+                    this.persons = facet.data
+                }))
         }
     }
 </script>
@@ -95,7 +103,7 @@
     </v-card>
 
     <v-dialog v-model="editor" width="50%">
-        <ProjectEditor :project="project" @close="editorClose" @list-changed="tableKey++"/>
+        <ProjectEditor :project="project" :persons="persons" @close="editorClose" @list-changed="tableKey++"/>
     </v-dialog>
 </template>
 

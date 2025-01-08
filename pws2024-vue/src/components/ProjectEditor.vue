@@ -21,7 +21,7 @@
                 }
             }
         },
-        props: [ 'project' ],
+        props: [ 'project', 'persons' ],
         emits: [ 'close', 'listChanged' ],
         methods: {
            send() {
