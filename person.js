@@ -36,16 +36,24 @@ const person = module.exports = {
         if(req.query.sort) {
             sort[req.query.sort] = +req.query.order || 1
         }
-        const matching = {
-            $match: {
-                $or: [
-                    { firstName: { $regex: req.query.search || '', $options: 'i' }},
-                    { lastName: { $regex: req.query.search || '', $options: 'i' }}
+        const minprojects = +req.query.minprojects || 0
+        const matching = [
+            { $lookup: { from: 'projects', localField: '_id', foreignField: 'contractor_ids', as: 'projects' } },
+            { $set: { project_ids: { $map : { input: '$projects', as: 'item', in: '$$item._id' } } } },
+            { $unset: 'projects' },
+            { $match: {
+                $and: [
+                    { $or: [
+                        { firstName: { $regex: req.query.search || '', $options: 'i' }},
+                        { lastName: { $regex: req.query.search || '', $options: 'i' }}
+                    ]},
+                    { $expr: { $gte: [ { $size: "$project_ids" }, minprojects ] }}
                 ]
+              }
             }
-        }
+        ]
     
-        const aggregation = [ matching ]
+        const aggregation = [ ...matching ]
     
         if(req.query.sort) {
             aggregation.push({ $sort: sort })
@@ -55,13 +63,8 @@ const person = module.exports = {
         if(!isNaN(limit) && limit > 0) {
             aggregation.push({ $limit: limit })
         }
-        aggregation.push(
-            { $lookup: { from: 'projects', localField: '_id', foreignField: 'contractor_ids', as: 'projects' } },
-            { $set: { project_ids: { $map : { input: '$projects', as: 'item', in: '$$item._id' } } } },
-            { $unset: 'projects' }
-        )
         person.model.aggregate([{ $facet: {
-            total: [ matching, { $count: 'count' } ],
+            total: [ ...matching, { $count: 'count' } ],
             data: aggregation
         }}])
         .then(facet => {
