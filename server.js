@@ -9,6 +9,7 @@ const mongoose = require('mongoose')
 const expressSession = require('express-session')
 const passport = require('passport')
 const passportJson = require('passport-json')
+const expressWs = require('express-ws')
 
 console.log('Backend starting...')
 
@@ -27,6 +28,7 @@ try {
 }
 
 // own modules
+const websocket = require('./websocket')
 const auth = require('./auth')
 const person = require('./person')
 const project = require('./project')
@@ -41,12 +43,18 @@ app.use((err, req, res, next) => {
 })
 
 // initialize mechanisms of sessions handling and authorization
-app.use(expressSession({ secret: config.dbUrl, resave: false, saveUninitialized: true }))
+const session = expressSession({ secret: config.dbUrl, resave: false, saveUninitialized: true })
+app.use(session)
 app.use(passport.initialize())
 app.use(passport.session())
 passport.use(new passportJson.Strategy(auth.checkCredentials))
 passport.serializeUser(auth.serialize)
 passport.deserializeUser(auth.deserialize)
+
+// websocket endpoint
+const wsEndpoint = '/ws'
+const wsInstance = expressWs(app)
+app.ws(wsEndpoint, (ws, req, next) => session(req, {}, next), websocket(wsInstance))
 
 app.use(express.static(config.frontend))
 
