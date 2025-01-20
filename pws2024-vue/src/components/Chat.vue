@@ -21,7 +21,14 @@ export default {
             console.log('Websocket connection established')
         }
         this.websocket.onmessage = event => {
-            console.log(event)
+            let data = {}
+            try {
+                data = JSON.parse(event.data)
+            } catch(err) {
+                console.error('JSON expected, got', event.data)
+                return
+            }
+            this.posts.push({ time: Date.now(), ...data })
         }
     }
 }
@@ -31,7 +38,9 @@ export default {
     <v-card variant="text">
         <v-card-title>Chat</v-card-title>
         <v-card-text>
-
+            <v-list>
+                <v-list-item v-for="post in posts">{{ new Date(post.time).toLocaleTimeString() }} @{{ post.from}} {{ post.message }}</v-list-item>
+            </v-list>
         </v-card-text>
         <v-card-actions>
             <v-form style="width: 100%;">

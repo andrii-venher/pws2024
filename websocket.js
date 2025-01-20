@@ -1,4 +1,8 @@
+const websocketMap = {}
+
 module.exports = wsInstance => (ws, req) => {
+    ws.sessionID = req.sessionID
+    websocketMap[req.sessionID] = ws
     ws.on('message', rawData => {
         let data = {}
         try {
@@ -7,18 +11,26 @@ module.exports = wsInstance => (ws, req) => {
             console.error(err.message, rawData)
             return
         }
-        console.log('Got websocket message', data)
         req.sessionStore.all((err, sessions) => {
-            if(!sessions) return
-            for(const session_id of Object.keys(sessions)) {
-                if(sessions[session_id].passport && sessions[session_id].passport.user) {
-                    console.log(session_id, sessions[session_id].passport.user)
-                } else {
-                    console.log(session_id, 'not-logged-in')
+            if(err) {
+                console.error('Cannot retrieve sessions')
+                return
+            }
+            for(const sessionID in sessions) {
+                if(websocketMap[sessionID] // chat was opened or not
+                   && sessions[sessionID].passport
+                   && sessions[sessionID].passport.user
+                   && sessions[sessionID].passport.user == data.to) {
+                    try {
+                        websocketMap[sessionID].send(JSON.stringify(data))
+                    } catch(err) {
+                        console.error('Websocket send error', err.message)
+                    }
                 }
             }
         })
-        wsInstance.getWss().clients.forEach(client => {
+        ws.on('close', () => {
+            delete websocketMap[ws.sessionID]
         })
     })
 }
