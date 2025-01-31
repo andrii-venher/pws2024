@@ -1,91 +1,105 @@
 // foreign dependencies
-const fs = require('fs')
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
-const morgan = require('morgan')
-const uuid = require('uuid')
-const mongoose = require('mongoose')
-const expressSession = require('express-session')
-const passport = require('passport')
-const passportJson = require('passport-json')
-const expressWs = require('express-ws')
+const fs = require("fs");
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const morgan = require("morgan");
+const uuid = require("uuid");
+const mongoose = require("mongoose");
+const expressSession = require("express-session");
+const passport = require("passport");
+const passportJson = require("passport-json");
+const expressWs = require("express-ws");
 
-console.log('Backend starting...')
+console.log("Backend starting...");
 
 // default configuration, override it by config.json
 let config = {
-    port: 8000,
-    frontend: './pws2024-vue/dist',
-    dbUrl: 'mongodb://localhost:27017/pws'
-}
+  port: 8000,
+  frontend: "./pws2024-vue/dist",
+  dbUrl: "mongodb://localhost:27017/pws",
+};
 
 try {
-    config = JSON.parse(fs.readFileSync('config.json'))
-    console.log('Configuration from config.json')
-} catch(err) {
-    console.log('Using default configuration')
+  config = JSON.parse(fs.readFileSync("config.json"));
+  console.log("Configuration from config.json");
+} catch (err) {
+  console.log("Using default configuration");
 }
 
 // own modules
-const websocket = require('./websocket')
-const auth = require('./auth')
-const person = require('./person')
-const project = require('./project')
+const websocket = require("./websocket");
+const auth = require("./auth");
+const person = require("./person");
+const project = require("./project");
 
-const app = express()
+const app = express();
 
-app.use(morgan('tiny'))
-app.use(cors())
-app.use(bodyParser.json())
+app.use(morgan("tiny"));
+app.use(cors());
+app.use(bodyParser.json());
 app.use((err, req, res, next) => {
-    res.status(400).json({ error: err.message })
-})
+  res.status(400).json({ error: err.message });
+});
 
 // initialize mechanisms of sessions handling and authorization
-const session = expressSession({ secret: config.dbUrl, resave: false, saveUninitialized: true })
-app.use(session)
-app.use(passport.initialize())
-app.use(passport.session())
-passport.use(new passportJson.Strategy(auth.checkCredentials))
-passport.serializeUser(auth.serialize)
-passport.deserializeUser(auth.deserialize)
+const session = expressSession({
+  secret: config.dbUrl,
+  resave: false,
+  saveUninitialized: true,
+});
+app.use(session);
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new passportJson.Strategy(auth.checkCredentials));
+passport.serializeUser(auth.serialize);
+passport.deserializeUser(auth.deserialize);
 
 // websocket endpoint
-const wsEndpoint = '/ws'
-const wsInstance = expressWs(app)
-app.ws(wsEndpoint, (ws, req, next) => session(req, {}, next), websocket(wsInstance))
+const wsEndpoint = "/ws";
+const wsInstance = expressWs(app);
+app.ws(
+  wsEndpoint,
+  (ws, req, next) => session(req, {}, next),
+  websocket(wsInstance)
+);
 
-app.use(express.static(config.frontend))
+app.use(express.static(config.frontend));
 
 // authentication endpoints
-const authEndpoint = '/api/auth'
-app.get(authEndpoint, auth.whoami)
-app.post(authEndpoint, passport.authenticate('json', { failWithError: true }), auth.login, auth.errorHandler)
-app.delete(authEndpoint, auth.logout)
+const authEndpoint = "/api/auth";
+app.get(authEndpoint, auth.whoami);
+app.post(
+  authEndpoint,
+  passport.authenticate("json", { failWithError: true }),
+  auth.login,
+  auth.errorHandler
+);
+app.delete(authEndpoint, auth.logout);
 
-app.get(person.endpoint, auth.checkIfInRole([0,1]), person.get)
-app.post(person.endpoint, auth.checkIfInRole([0]), person.post)
-app.put(person.endpoint, auth.checkIfInRole([0]), person.put)
-app.delete(person.endpoint, auth.checkIfInRole([0]), person.delete)
+app.get(person.endpoint, auth.checkIfInRole([0, 1]), person.get);
+app.post(person.endpoint, auth.checkIfInRole([0]), person.post);
+app.put(person.endpoint, auth.checkIfInRole([0]), person.put);
+app.delete(person.endpoint, auth.checkIfInRole([0]), person.delete);
 
-app.get(project.endpoint, project.get)
-app.post(project.endpoint, auth.checkIfInRole([0]), project.post)
-app.put(project.endpoint, auth.checkIfInRole([0]), project.put)
-app.delete(project.endpoint, auth.checkIfInRole([0]), project.delete)
+app.get(project.endpoint, project.get);
+app.post(project.endpoint, auth.checkIfInRole([0]), project.post);
+app.put(project.endpoint, auth.checkIfInRole([0]), project.put);
+app.delete(project.endpoint, auth.checkIfInRole([0]), project.delete);
 
-mongoose.connect(config.dbUrl)
-.then(conn => {
-    console.log(`Connection to ${config.dbUrl} established`)
+mongoose
+  .connect(config.dbUrl)
+  .then((conn) => {
+    console.log(`Connection to ${config.dbUrl} established`);
 
-    person.init(conn)
-    project.init(conn)
+    person.init(conn);
+    project.init(conn);
 
     app.listen(config.port, () => {
-        console.log('Backend listening on port', config.port)
-    })    
-})
-.catch(err => {
-    console.error(`Connection to ${config.dbUrl} cannot be established`)
-    process.exit(0)
-})
+      console.log("Backend listening on port", config.port);
+    });
+  })
+  .catch((err) => {
+    console.error(`Connection to ${config.dbUrl} cannot be established`);
+    process.exit(0);
+  });
