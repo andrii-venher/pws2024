@@ -56,7 +56,7 @@ export default {
       }
     },
     add() {
-      this.project = {};
+      this.project = { contractor_ids: [], tasks: [] };
       this.editor = true;
     },
     editorClose(text, color) {

@@ -1,14 +1,23 @@
 <script>
+import TaskEditor from "./TaskEditor.vue";
+
 const projectEndpoint = "/api/project";
 const personEndpoint = "/api/person";
 
 export default {
+  components: { TaskEditor },
   data() {
     return {
       personItems: [],
       isValid: false,
       input: {},
       rules: {
+        nonEmpty: (value) => {
+          if (value) {
+            return true;
+          }
+          return "The field should be non-empty.";
+        },
         startsWithLetter: (value) => {
           const pattern = /^\p{L}/u;
           return pattern.test(value) || "It should start with a letter";
@@ -18,12 +27,40 @@ export default {
           return !!date || "Use a proper date";
         },
       },
+      taskEditor: false,
+      tasks: [],
     };
   },
   props: ["project", "persons"],
   emits: ["close", "listChanged"],
   methods: {
-    send() {
+    async validateForm() {
+      const { valid, _ } = await this.$refs.form.validate();
+
+      return valid;
+    },
+    ensureDataConsistency() {
+      this.tasks.forEach((element) => {
+        element.contractor_ids = element.contractor_ids.filter((x) =>
+          this.input.contractor_ids.includes(x)
+        );
+        if (element.startDate < this.input.startDate) {
+          element.startDate = this.input.startDate;
+        }
+        if (element.endDate > this.input.endDate) {
+          element.endDate = this.input.endDate;
+        }
+      });
+    },
+    async send() {
+      if (!(await this.validateForm())) {
+        return;
+      }
+
+      this.ensureDataConsistency();
+
+      this.input.tasks = this.tasks;
+
       fetch(projectEndpoint, {
         method: "POST",
         headers: { "Content-type": "application/json" },
@@ -45,7 +82,15 @@ export default {
           });
       });
     },
-    update() {
+    async update() {
+      if (!(await this.validateForm())) {
+        return;
+      }
+
+      this.ensureDataConsistency();
+
+      this.input.tasks = this.tasks;
+
       fetch(projectEndpoint, {
         method: "PUT",
         headers: { "Content-type": "application/json" },
@@ -97,13 +142,36 @@ export default {
     clear() {
       this.input = { _id: this.input._id };
       this.isValid = false;
+      this.$refs.form.resetValidation();
     },
     close() {
       this.$emit("close");
     },
+    addTask() {
+      this.taskEditor = true;
+      this.task = {};
+    },
+    editTask(task) {
+      this.ensureDataConsistency();
+      this.taskEditor = true;
+      this.task = task;
+    },
+    removeTask(task) {
+      let index = this.tasks.findIndex((x) => x._id == task._id);
+      if (index >= 0) {
+        this.tasks.splice(index, 1);
+      }
+    },
+    editorClose(text, color) {
+      this.taskEditor = false;
+      if (text) {
+        this.$emit("displayMessage", text, color);
+      }
+    },
   },
   mounted() {
     Object.assign(this.input, this.project);
+    this.tasks = JSON.parse(JSON.stringify(this.input.tasks));
     fetch(
       personEndpoint +
         "?" +
@@ -118,9 +186,10 @@ export default {
 </script>
 
 <template>
-  <v-form v-model="isValid">
+  <v-form v-model="isValid" ref="form">
     <v-card>
       <v-card-title>{{ input._id ? "Edit data" : "Add data" }}</v-card-title>
+
       <v-card-subtitle>
         {{ input._id || "new project" }}
       </v-card-subtitle>
@@ -129,7 +198,7 @@ export default {
           variant="outlined"
           label="Name"
           v-model="input.name"
-          :rules="[rules.startsWithLetter]"
+          :rules="[rules.nonEmpty, rules.startsWithLetter]"
         >
         </v-text-field>
         <v-text-field
@@ -137,7 +206,7 @@ export default {
           variant="outlined"
           label="Start date"
           v-model="input.startDate"
-          :rules="[rules.validDate]"
+          :rules="[rules.nonEmpty, rules.validDate]"
         >
         </v-text-field>
         <v-text-field
@@ -158,6 +227,38 @@ export default {
           :item-title="(item) => item.firstName + ' ' + item.lastName"
           item-value="_id"
         ></v-autocomplete>
+        <v-list>
+          <v-list-subheader>Tasks</v-list-subheader>
+
+          <v-list-item
+            v-for="task in tasks"
+            :key="task.name"
+            :subtitle="task._id"
+            :title="task.name"
+          >
+            <template v-slot:prepend>
+              <v-avatar color="grey-lighten-1">
+                <v-icon color="white">mdi-code-brackets</v-icon>
+              </v-avatar>
+            </template>
+
+            <template v-slot:append>
+              <v-btn
+                color="grey-lighten-1"
+                icon="mdi-pencil-circle"
+                variant="text"
+                @click="() => editTask(task)"
+              ></v-btn>
+              <v-btn
+                color="grey-lighten-1"
+                icon="mdi-close-circle"
+                variant="text"
+                @click="() => removeTask(task)"
+              ></v-btn>
+            </template>
+          </v-list-item>
+        </v-list>
+        <v-btn @click="addTask">Add Task</v-btn>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -166,7 +267,6 @@ export default {
           color="primary"
           variant="elevated"
           @click="send"
-          :disabled="!isValid"
           v-if="!input._id"
           >Save</v-btn
         >
@@ -174,7 +274,6 @@ export default {
           color="secondary"
           variant="elevated"
           @click="update"
-          :disabled="!isValid"
           v-if="input._id"
           >Update</v-btn
         >
@@ -185,6 +284,20 @@ export default {
       </v-card-actions>
     </v-card>
   </v-form>
+
+  <v-dialog v-model="taskEditor" width="50%">
+    <TaskEditor
+      :task="task"
+      :tasks="tasks"
+      :projectContributors="
+        personItems.filter((p) => this.input.contractor_ids.includes(p._id))
+      "
+      :startDate="input.startDate"
+      :endDate="input.endDate"
+      @close="editorClose"
+      @list-changed="tableKey++"
+    />
+  </v-dialog>
 </template>
 
 <style scoped></style>

@@ -29,6 +29,37 @@ const project = (module.exports = {
           transform: (v) => v.toISOString().substr(0, 10),
         },
         contractor_ids: { type: [String], required: false, default: [] },
+        tasks: {
+          type: [
+            new mongoose.Schema({
+              _id: { type: String, default: uuid.v4 },
+              name: {
+                type: String,
+                required: true,
+                validate: {
+                  validator: (v) => {
+                    return /^\p{L}/u.test(v);
+                  },
+                  message: (props) =>
+                    `${props.value} does not start from a letter`,
+                },
+              },
+              startDate: {
+                type: Date,
+                required: true,
+                transform: (v) => v.toISOString().substr(0, 10),
+              },
+              endDate: {
+                type: Date,
+                required: false,
+                transform: (v) => v.toISOString().substr(0, 10),
+              },
+              contractor_ids: { type: [String], required: false, default: [] },
+            }),
+          ],
+          required: false,
+          default: [],
+        },
       },
       {
         versionKey: false,
