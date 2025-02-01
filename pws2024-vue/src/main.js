@@ -26,6 +26,7 @@ import Chat from "./components/Chat.vue";
 
 // Router
 import { createRouter, createWebHashHistory } from "vue-router";
+import Analysis from "./components/Analysis.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -49,6 +50,13 @@ const router = createRouter({
       component: Charts,
       icon: "mdi-chart-bar",
       title: "Charts",
+    },
+    {
+      path: "/analysis",
+      component: Analysis,
+      icon: "mdi-chart-gantt",
+      title: "Analysis",
+      roles: [0, 1],
     },
     {
       path: "/chat",
