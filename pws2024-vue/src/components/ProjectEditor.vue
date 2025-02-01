@@ -50,6 +50,9 @@ export default {
         if (element.endDate > this.input.endDate) {
           element.endDate = this.input.endDate;
         }
+        if (element.endDate < element.startDate) {
+          element.endDate = element.startDate;
+        }
       });
     },
     async send() {
@@ -149,7 +152,7 @@ export default {
     },
     addTask() {
       this.taskEditor = true;
-      this.task = {};
+      this.task = { contractor_ids: [] };
     },
     editTask(task) {
       this.ensureDataConsistency();
