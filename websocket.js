@@ -27,6 +27,23 @@ module.exports = (wsInstance) => (ws, req) => {
     });
   };
 
+  const handleProject = (data) => {
+    console.log(data);
+    req.sessionStore.all((err, sessions) => {
+      if (err) {
+        console.error("Cannot retrieve sessions");
+        return;
+      }
+      for (const sessionID in sessions) {
+        try {
+          websocketMap[sessionID].send(JSON.stringify(data));
+        } catch (err) {
+          console.error("Websocket send error", err.message);
+        }
+      }
+    });
+  };
+
   ws.on("message", (rawData) => {
     let data = {};
     try {
@@ -37,6 +54,9 @@ module.exports = (wsInstance) => (ws, req) => {
     }
     if (data.type == "chatmessage") {
       handeChatMessage(data);
+    }
+    if (data.type == "project") {
+      handleProject(data);
     }
   });
 

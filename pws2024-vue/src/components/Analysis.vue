@@ -39,6 +39,37 @@ export default {
     },
   },
   mounted() {
+    this.websocket = new WebSocket("ws://" + window.location.host + "/ws");
+    this.websocket.onopen = () => {
+      console.log("Websocket connection established");
+    };
+    this.websocket.onmessage = (event) => {
+      let data = {};
+      try {
+        data = JSON.parse(event.data);
+      } catch (err) {
+        console.error("JSON expected, got", event.data);
+        return;
+      }
+
+      if (data.type != "project") {
+        return;
+      }
+
+      if (data.operation == "add") {
+        this.projects.push(data.project);
+      } else if (data.operation == "update") {
+        let index = this.projects.findIndex((p) => p._id == data.project._id);
+        if (index >= 0) {
+          this.projects[index] = data.project;
+        }
+      } else if (data.operation == "remove") {
+        let index = this.projects.findIndex((p) => p._id == data.project._id);
+        if (index >= 0) {
+          this.projects.splice(index, 1);
+        }
+      }
+    };
     fetch(projectEndpoint).then((res) =>
       res
         .json()

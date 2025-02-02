@@ -75,6 +75,9 @@ export default {
             if (!res.ok) {
               this.$emit("close", data.error, "error");
             } else {
+              this.input._id = data._id;
+              this.sendProjectToWs(this.input, "add");
+
               this.input = {};
               this.$emit("close", `Project ${data.name} - added`);
               this.$emit("listChanged");
@@ -105,6 +108,8 @@ export default {
             if (!res.ok) {
               this.$emit("close", data.error, "error");
             } else {
+              this.sendProjectToWs(this.input, "update");
+
               this.input = {};
               this.$emit("close", `Project ${data.name} - updated`);
               this.$emit("listChanged");
@@ -128,6 +133,7 @@ export default {
             if (!res.ok) {
               this.$emit("close", data.error, "error");
             } else {
+              this.sendProjectToWs({ _id: this.input._id }, "remove");
               this.input = {};
               this.$emit("close", `Project ${data.name} - deleted`);
               this.$emit("listChanged");
@@ -171,8 +177,21 @@ export default {
         this.$emit("displayMessage", text, color);
       }
     },
+    sendProjectToWs(project, operation) {
+      this.websocket.send(
+        JSON.stringify({
+          type: "project",
+          operation: operation,
+          project: project,
+        })
+      );
+    },
   },
   mounted() {
+    this.websocket = new WebSocket("ws://" + window.location.host + "/ws");
+    this.websocket.onopen = () => {
+      console.log("Websocket connection established");
+    };
     Object.assign(this.input, this.project);
     this.tasks = JSON.parse(JSON.stringify(this.input.tasks));
     fetch(
