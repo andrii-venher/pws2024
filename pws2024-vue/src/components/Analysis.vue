@@ -33,7 +33,7 @@ export default {
         id: item._id,
         name: item.name,
         start: item.startDate,
-        end: item.endDate || today,
+        end: item.endDate || (today > item.startDate ? today : item.startDate),
         progress: item.endDate ? 100 : 0,
       };
     },
