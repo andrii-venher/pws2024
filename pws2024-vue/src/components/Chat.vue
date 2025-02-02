@@ -35,6 +35,11 @@ export default {
         console.error("JSON expected, got", event.data);
         return;
       }
+      
+      if (data.type != "chatmessage") {
+        return;
+      }
+
       this.posts.push({ time: Date.now(), ...data });
     };
   },
