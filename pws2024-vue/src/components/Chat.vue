@@ -13,6 +13,7 @@ export default {
     send() {
       this.websocket.send(
         JSON.stringify({
+          type: "chatmessage",
           from: this.session.username,
           to: this.recipient,
           message: this.message,

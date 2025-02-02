@@ -3,14 +3,8 @@ const websocketMap = {};
 module.exports = (wsInstance) => (ws, req) => {
   ws.sessionID = req.sessionID;
   websocketMap[req.sessionID] = ws;
-  ws.on("message", (rawData) => {
-    let data = {};
-    try {
-      data = JSON.parse(rawData);
-    } catch (err) {
-      console.error(err.message, rawData);
-      return;
-    }
+
+  const handeChatMessage = (data) => {
     req.sessionStore.all((err, sessions) => {
       if (err) {
         console.error("Cannot retrieve sessions");
@@ -31,8 +25,22 @@ module.exports = (wsInstance) => (ws, req) => {
         }
       }
     });
-    ws.on("close", () => {
-      delete websocketMap[ws.sessionID];
-    });
+  };
+
+  ws.on("message", (rawData) => {
+    let data = {};
+    try {
+      data = JSON.parse(rawData);
+    } catch (err) {
+      console.error(err.message, rawData);
+      return;
+    }
+    if (data.type == "chatmessage") {
+      handeChatMessage(data);
+    }
+  });
+
+  ws.on("close", () => {
+    delete websocketMap[ws.sessionID];
   });
 };
